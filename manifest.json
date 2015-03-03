@@ -1,0 +1,20 @@
+{
+  //@todo reorder this file
+  "name": "loripsum.net context menu",
+  "description": "Paste plain or formatted lorem ipsum text into any textfield by using the right click context menu.",
+  "version": "0.1",
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "http://loripsum.net/"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [ {
+    "all_frames": false,
+    "js": [ "content.js" ],
+    "matches": [ "\u003Call_urls>" ]
+  } ],
+  "manifest_version": 2
+}
