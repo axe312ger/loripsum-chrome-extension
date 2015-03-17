@@ -6,6 +6,7 @@
   "permissions": [
     "contextMenus",
     "tabs",
+    "storage",
     "http://loripsum.net/"
   ],
   "background": {
@@ -16,5 +17,14 @@
     "js": [ "content.js" ],
     "matches": [ "\u003Call_urls>" ]
   } ],
+  "commands": {
+    "paste-last-loripsum": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "Command+Shift+L"
+      },
+      "description": "Paste a loripsum text at the current cursor position based on the last used configuration."
+    }
+  },
   "manifest_version": 2
 }

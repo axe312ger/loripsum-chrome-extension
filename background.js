@@ -1,9 +1,25 @@
 function loripsum() {
-  var main = createMenuItem('Paste Lorem ipsum blind text');
-  var paragraphs = [1,2,3,5,8];
+  var main = createMenuItem('Lorem ipsum');
+
+  // Paste last used loripsum text.
+  chrome.contextMenus.create({
+    'title': 'Paste text again',
+    'contexts': ['editable'],
+    'parentId': main,
+    'onclick': function () {
+      pasteLastLoripsum();
+    }
+  });
+
+  chrome.contextMenus.create({
+    'type': 'separator',
+    'parentId': main,
+    'contexts': ['editable']
+  });
 
   // Generate menu items to determine the number of paragraphs
-  paragraphs.forEach(function(paragraphCount){
+  var paragraphs = [1,2,3,5,8];
+  paragraphs.forEach(function(paragraphCount) {
     var countItem = createMenuItem(paragraphCount + ' paragraph' + (paragraphCount > 1 ? 's' : ''), main);
 
     // Generate menu items to determine the paragraphs length
@@ -23,6 +39,43 @@ function loripsum() {
     });
   });
 
+  // Bind shortcuts
+  chrome.commands.onCommand.addListener(function(command) {
+    switch (command) {
+      case 'paste-last-loripsum':
+        pasteLastLoripsum();
+        break;
+    }
+  });
+
+  function pasteLastLoripsum () {
+    chrome.storage.sync.get('last-paste-params', function(items) {
+      if (items['last-paste-params'].length > 0) {
+        apiParams = items['last-paste-params'];
+      } else {
+        apiParams = ['5', 'medium', 'decorate', 'links'];
+      }
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        pasteLoripsum(tabs[0], apiParams);
+      });
+    });
+  }
+
+  function pasteLoripsum (tab, apiParams) {
+    var xhr = new XMLHttpRequest();
+
+    // Save it using the Chrome extension storage API.
+    chrome.storage.sync.set({'last-paste-params': apiParams});
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        chrome.tabs.sendRequest(tab.id, xhr.responseText);
+      }
+    };
+    xhr.open('GET', 'http://loripsum.net/api/' + apiParams.join('/'), true);
+    xhr.send();
+  }
+
   function createMenuItem(title, parentId, params) {
     var item = {
       'title': title,
@@ -37,17 +90,6 @@ function loripsum() {
       };
     }
     return chrome.contextMenus.create(item);
-  }
-
-  function pasteLoripsum(tab, apiParams) {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        chrome.tabs.sendRequest(tab.id, xhr.responseText);
-      }
-    };
-    xhr.open('GET', 'http://loripsum.net/api/' + apiParams.join('/'), true);
-    xhr.send();
   }
 }
 
