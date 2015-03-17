@@ -3,7 +3,7 @@ function loripsum() {
 
   // Paste last used loripsum text.
   chrome.contextMenus.create({
-    'title': 'Paste text again',
+    'title': 'Use last configuration',
     'contexts': ['editable'],
     'parentId': main,
     'onclick': function () {
